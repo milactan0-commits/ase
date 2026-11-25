@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Falsafa 100 — Intensiv Yodlash Treneri</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .card-scene { perspective: 1200px; }
+    .card-inner {
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+    .card-inner.is-flipped { transform: rotateY(180deg); }
+    .card-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-back { transform: rotateY(180deg); }
+    .blur-def { filter: blur(6px); user-select: none; cursor: pointer; transition: filter 0.15s; }
+    .blur-def.revealed { filter: none; user-select: auto; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-150">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-extrabold flex items-center justify-center text-sm shrink-0 shadow-sm">
+          100
+        </div>
+        <div class="min-w-0">
+          <h1 class="font-bold text-sm sm:text-base leading-tight truncate">Falsafa 100 — Tez Yodlash</h1>
+          <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span id="hdr-mastered" class="font-semibold text-emerald-600 dark:text-emerald-400">0/100 yodlandi</span>
+            <span>•</span>
+            <span id="hdr-hard" class="font-semibold text-amber-600 dark:text-amber-400">0 qiyin</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <button id="btn-theme" type="button" title="Tungi / Kunduzgi rejim"
+          class="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          ☀️ / 🌙
+        </button>
+        <button id="btn-reset-open" type="button"
+          class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition">
+          Tozalash
+        </button>
+      </div>
+    </div>
+
+    <!-- Global Progress Bar -->
+    <div class="w-full h-1 bg-slate-200 dark:bg-slate-800">
+      <div id="global-progress-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-5xl mx-auto px-3 sm:px-5 flex gap-1 overflow-x-auto py-1.5">
+      <button data-tab="flashcards" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        ⚡ Kartochkalar
+      </button>
+      <button data-tab="quiz" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        🎯 Tez Test
+      </button>
+      <button data-tab="clusters" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        🧩 Juftliklar (13)
+      </button>
+      <button data-tab="list" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition">
+        📋 100-lik Shpargalka
+      </button>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-5 py-4 sm:py-6">
+
+    <!-- TAB 1: FLASHCARDS -->
+    <section id="view-flashcards" class="space-y-4">
+      <!-- Controls Strip -->
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <label for="fc-scope" class="text-xs font-medium text-slate-500 dark:text-slate-400">Blok:</label>
+          <select id="fc-scope" class="text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="b1">1–20 (Asosiy + Oqimlar)</option>
+            <option value="b2">21–40 (Din, Axloq, Shaxs)</option>
+            <option value="b3">41–60 (Bilish, Mantiq, Ong)</option>
+            <option value="b4">61–80 (Fan, Subyekt, Burch)</option>
+            <option value="b5">81–100 (Sentrizm, Universal.)</option>
+            <option value="all">Barchasi (1–100)</option>
+            <option value="unmastered">Faqat yodlanmaganlar</option>
+            <option value="hard">Faqat qiyinlar</option>
+          </select>
+          <button id="fc-shuffle" type="button"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+            🔀 Aralashtir
+          </button>
+          <button id="fc-reverse" type="button"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            🔄 Atama → Ta’rif
+          </button>
+        </div>
+        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400" id="fc-counter">1 / 20</div>
+      </div>
+
+      <!-- Active Card Area -->
+      <div id="fc-stage" class="max-w-2xl mx-auto">
+        <div class="card-scene w-full">
+          <div id="fc-card-inner" class="card-inner relative w-full min-h-[300px] sm:min-h-[340px] cursor-pointer">
+            <!-- Front -->
+            <div class="card-face absolute inset-0 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 shadow-lg p-6 sm:p-8 flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2">
+                <span id="fc-front-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">#1</span>
+                <span id="fc-front-cluster" class="text-xs font-medium text-slate-500 dark:text-slate-400 truncate"></span>
+              </div>
+
+              <div class="my-auto py-4 text-center space-y-3">
+                <div id="fc-front-main" class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-snug"></div>
+                <div id="fc-etym-box" class="hidden inline-block px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-xs sm:text-sm text-amber-800 dark:text-amber-200 font-medium"></div>
+              </div>
+
+              <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button id="fc-hint-btn" type="button"
+                  class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition">
+                  💡 Etimologiya (H)
+                </button>
+                <span class="text-xs text-slate-400">Ag‘darish: Bosish yoki <kbd class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono">Space</kbd></span>
+              </div>
+            </div>
+
+            <!-- Back -->
+            <div class="card-face card-back absolute inset-0 rounded-2xl bg-slate-50 dark:bg-slate-900 border-2 border-indigo-500/60 shadow-lg p-6 sm:p-8 flex flex-col justify-between overflow-y-auto">
+              <div class="flex items-center justify-between gap-2">
+                <span id="fc-back-title" class="font-bold text-sm sm:text-base text-indigo-600 dark:text-indigo-400"></span>
+                <span id="fc-back-etym" class="text-xs text-slate-500 dark:text-slate-400 italic truncate max-w-[60%]"></span>
+              </div>
+
+              <div class="my-auto py-3 space-y-4">
+                <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
+                  <div class="text-[11px] uppercase tracking-wider font-bold text-emerald-700 dark:text-emerald-400 mb-1">⚡ Tezkor kalit</div>
+                  <div id="fc-back-anchor" class="text-base sm:text-lg font-bold text-emerald-900 dark:text-emerald-200"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-1">Rasmiy ta’rif</div>
+                  <p id="fc-back-def" class="text-sm sm:text-base leading-relaxed text-slate-700 dark:text-slate-200"></p>
+                </div>
+              </div>
+
+              <div class="text-center text-xs text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800">
+                ← Qayta ko‘rish &nbsp;|&nbsp; → Bildim
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flashcard Action Buttons -->
+        <div class="grid grid-cols-3 gap-2.5 mt-4">
+          <button id="fc-btn-again" type="button"
+            class="py-3 px-3 rounded-xl font-bold text-xs sm:text-sm bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 hover:bg-rose-200 dark:hover:bg-rose-900/70 transition active:scale-[0.98]">
+            ← Qayta (Qiyin)
+          </button>
+          <button id="fc-btn-flip" type="button"
+            class="py-3 px-3 rounded-xl font-bold text-xs sm:text-sm bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-100 hover:bg-slate-300 dark:hover:bg-slate-700 transition active:scale-[0.98]">
+            🔄 Ag‘darish
+          </button>
+          <button id="fc-btn-know" type="button"
+            class="py-3 px-3 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-sm active:scale-[0.98]">
+            Bildim ✓ →
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty / Completed State for Flashcards -->
+      <div id="fc-done" class="hidden max-w-xl mx-auto text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 space-y-4">
+        <div class="text-4xl">🏆</div>
+        <h2 class="text-xl font-extrabold">Bu blok yakunlandi!</h2>
+        <p id="fc-done-msg" class="text-sm text-slate-500 dark:text-slate-400"></p>
+        <div class="flex flex-wrap justify-center gap-2 pt-2">
+          <button id="fc-done-restart" type="button" class="px-4 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-500 transition">
+            Qayta boshlash
+          </button>
+          <button id="fc-done-quiz" type="button" class="px-4 py-2 rounded-xl text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-500 transition">
+            🎯 Shu blokdan Tez Test
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: SPRINT QUIZ -->
+    <section id="view-quiz" class="hidden space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="qz-scope" class="text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="b1">Blok 1 (1–20)</option>
+            <option value="b2">Blok 2 (21–40)</option>
+            <option value="b3">Blok 3 (41–60)</option>
+            <option value="b4">Blok 4 (61–80)</option>
+            <option value="b5">Blok 5 (81–100)</option>
+            <option value="all">Barchasi (1–100)</option>
+            <option value="unmastered">Faqat yodlanmaganlar</option>
+            <option value="hard">Faqat qiyinlar</option>
+          </select>
+          <button id="qz-dir" type="button"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            Ta’rif → Atama
+          </button>
+          <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-2">
+            <input id="qz-autonext" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500" />
+            <span>Avto-o‘tish</span>
+          </label>
+        </div>
+        <div class="flex items-center gap-3 text-xs font-bold">
+          <span id="qz-progress" class="text-slate-500 dark:text-slate-400">1 / 20</span>
+          <span id="qz-score-ok" class="text-emerald-600 dark:text-emerald-400">✓ 0</span>
+          <span id="qz-score-bad" class="text-rose-600 dark:text-rose-400">✗ 0</span>
+        </div>
+      </div>
+
+      <div id="qz-stage" class="max-w-2xl mx-auto space-y-4">
+        <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-sm space-y-2">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span id="qz-q-label" class="font-semibold uppercase tracking-wider">Ta’rifga mos atamani toping</span>
+            <span id="qz-streak" class="font-bold text-amber-500"></span>
+          </div>
+          <div id="qz-prompt" class="text-base sm:text-xl font-bold leading-relaxed pt-1"></div>
+        </div>
+
+        <div id="qz-options" class="grid grid-cols-1 gap-2.5"></div>
+
+        <div id="qz-feedback-bar" class="hidden flex items-center justify-between gap-3 p-3.5 rounded-xl border">
+          <div id="qz-feedback-text" class="text-xs sm:text-sm font-semibold"></div>
+          <button id="qz-next-btn" type="button" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-500 shrink-0 transition">
+            Keyingisi →
+          </button>
+        </div>
+      </div>
+
+      <div id="qz-summary" class="hidden max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4">
+        <div class="text-center space-y-1">
+          <div class="text-4xl font-extrabold text-indigo-600 dark:text-indigo-400" id="qz-pct">0%</div>
+          <h2 class="text-lg font-bold">Sprint yakunlandi!</h2>
+          <p id="qz-sum-sub" class="text-sm text-slate-500 dark:text-slate-400"></p>
+        </div>
+        <div id="qz-missed-wrap" class="hidden space-y-2 pt-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-500">Xato qilingan atamalar:</div>
+          <div id="qz-missed-list" class="space-y-1.5 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-2 pt-2">
+          <button id="qz-retry-missed" type="button" class="hidden px-4 py-2 rounded-xl text-sm font-bold bg-rose-600 text-white hover:bg-rose-500 transition">
+            🔥 Faqat xatolarni qayta ishlash
+          </button>
+          <button id="qz-restart" type="button" class="px-4 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-500 transition">
+            🔄 Qayta boshlash
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: CLUSTERS / PAIRS -->
+    <section id="view-clusters" class="hidden space-y-4">
+      <div class="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 rounded-xl p-3.5 text-xs sm:text-sm text-indigo-900 dark:text-indigo-200">
+        <strong>Tez yodlash siri:</strong> 100 ta atamani yakka-yakka emas, qarama-qarshi juftlik va 13 ta mantiqiy klasterda yodlasangiz, 2 barobar tez esda qoladi. Har bir guruhni alohida kartochka yoki test qilib mustahkamlang.
+      </div>
+      <div id="clusters-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- TAB 4: CHEAT SHEET LIST -->
+    <section id="view-list" class="hidden space-y-3">
+      <div class="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3">
+        <input id="ls-search" type="text" placeholder="Atama, etimologiya yoki kalit so‘z qidirish..."
+          class="flex-1 min-w-[200px] text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button data-lfilter="all" class="lfilter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">Barchasi</button>
+          <button data-lfilter="unmastered" class="lfilter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">Qolgan</button>
+          <button data-lfilter="hard" class="lfilter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">Qiyin</button>
+          <button data-lfilter="mastered" class="lfilter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">Yodlangan</button>
+        </div>
+        <button id="ls-toggle-blur" type="button"
+          class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition">
+          👁️ Ta’riflarni yashirish
+        </button>
+      </div>
+      <div id="ls-count" class="text-xs text-slate-500 dark:text-slate-400 px-1"></div>
+      <div id="ls-container" class="space-y-2"></div>
+    </section>
+
+  </main>
+
+  <!-- Reset Confirmation Modal (in-page, sandbox-safe) -->
+  <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-xl">
+      <h3 class="font-bold text-base">Progressni tozalash?</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Barcha «Yodlangan» va «Qiyin» belgilari nolga qaytariladi.</p>
+      <div class="flex justify-end gap-2">
+        <button id="reset-cancel" type="button" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700">Bekor qilish</button>
+        <button id="reset-confirm" type="button" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-rose-600 text-white hover:bg-rose-500">Ha, tozalash</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TERMS = [{"id": 1, "term": "Ontologiya", "etym": "yun. ontos — borliq, logos — ta’limot", "def": "falsafaning borliq, uning tamoyillari, tuzilishi, shakllari va umumiy qonuniyatlarini o‘rganuvchi bo‘limi.", "anchor": "Borliq haqidagi ta’limot", "cluster": "bolimlar"}, {"id": 2, "term": "Gnoseologiya", "etym": "yun. gnosis — bilim, logos — ta’limot", "def": "bilish nazariyasi; inson bilishining mohiyati, imkoniyatlari, bosqichlari va haqiqatga munosabatini tadqiq etuvchi soha.", "anchor": "Bilish nazariyasi", "cluster": "bolimlar"}, {"id": 3, "term": "Aksiologiya", "etym": "yun. axia — qadriyat, logos — ta’limot", "def": "qadriyatlar tabiati, ularning jamiyat va inson hayotidagi o‘rni hamda tuzilishini o‘rganuvchi falsafiy ta’limot.", "anchor": "Qadriyatlar haqidagi ta’limot", "cluster": "bolimlar"}, {"id": 4, "term": "Metafizika", "etym": "yun. meta ta physika — fizikadan keyin", "def": "borliqning hissiy tajribadan tashqaridagi ilk asoslarini o‘rganuvchi ta’limot; narsalarni o‘zgarishsiz va o‘zaro ajralgan holda ko‘rib chiquvchi usul.", "anchor": "Fizikadan keyingi ilk asoslar", "cluster": "bolimlar"}, {"id": 5, "term": "Dialektika", "etym": "yun. dialektike — suhbat olib borish san’ati", "def": "tabiat, jamiyat va tafakkurning umumiy aloqadorlik, harakat hamda ichki ziddiyatlar orqali rivojlanish qonuniyatlari haqidagi ta’limot.", "anchor": "Aloqadorlik, harakat va ziddiyatlar", "cluster": "bolimlar"}, {"id": 6, "term": "Metodologiya", "etym": "yun. methodos — yo‘l, usul, logos — ta’limot", "def": "ilmiy bilish va amaliy faoliyatni tashkil etish usullari, tamoyillari hamda vositalari tizimi haqidagi ta’limot.", "anchor": "Ilmiy bilish usullari tizimi", "cluster": "bolimlar"}, {"id": 7, "term": "Mantiq", "etym": "arab. — nutq, aql, fikr", "def": "to‘g‘ri fikrlash shakllari (tushuncha, hukm, xulosa) va qonuniyatlarini o‘rganuvchi fan.", "anchor": "To‘g‘ri fikrlash qonuniyatlari", "cluster": "bolimlar"}, {"id": 8, "term": "Etika", "etym": "yun. ethos — xulq, odat", "def": "axloq, uning kelib chiqishi, mohiyati, me’yorlari va insonning jamiyatdagi xulq-atvor qoidalarini o‘rganuvchi falsafiy fan.", "anchor": "Axloq va xulq-atvor fani", "cluster": "bolimlar"}, {"id": 9, "term": "Estetika", "etym": "yun. aisthetikos — hissiy idrok etiluvchi", "def": "voqelikni go‘zallik qonunlari asosida o‘zlashtirish, nafosat tabiati va badiiy ijod qonuniyatlarini o‘rganuvchi falsafiy fan.", "anchor": "Go‘zallik va nafosat fani", "cluster": "bolimlar"}, {"id": 10, "term": "Aksioma", "etym": "yun. axioma — qabul qilingan qoida", "def": "muayyan nazariya doirasida isbotsiz chin deb qabul qilinadigan va boshqa qoidalarni isbotlashga asos bo‘luvchi boshlang‘ich holat.", "anchor": "Isbotsiz chin boshlang‘ich qoida", "cluster": "bilish_oqim"}, {"id": 11, "term": "Germenevtika", "etym": "yun. hermeneuo — tushuntiraman, sharhlayman", "def": "tarixiy, falsafiy, adabiy va diniy matnlarni tushunish, talqin qilish hamda sharhlash san’ati va nazariyasi.", "anchor": "Matnlarni talqin va sharhlash", "cluster": "bilish_oqim"}, {"id": 12, "term": "Pragmatizm", "etym": "yun. pragma — ish, harakat", "def": "bilim va g‘oyalarning haqiqiyligini ularning amaliy foydasi hamda hayotiy samarasi bilan belgilovchi falsafiy oqim.", "anchor": "Haqiqat mezoni — amaliy foyda", "cluster": "bilish_oqim"}, {"id": 13, "term": "Empirizm", "etym": "yun. empeiria — tajriba", "def": "hissiy tajriba va kuzatishni bilimning yagona yoki asosiy manbai deb hisoblovchi bilish nazariyasidagi yo‘nalish.", "anchor": "Bilim manbai — hissiy tajriba", "cluster": "bilish_oqim"}, {"id": 14, "term": "Ratsionalizm", "etym": "lot. ratio — aql", "def": "aql va mantiqiy tafakkurni haqiqiy, umumiy hamda zaruriy bilimning asosiy manbai va mezoni deb tan oluvchi falsafiy yo‘nalish.", "anchor": "Bilim manbai — aql va mantiq", "cluster": "bilish_oqim"}, {"id": 15, "term": "Idealizm", "etym": "yun. idea — g‘oya, timsol", "def": "ong, ruh yoki g‘oyani birlamchi, moddiy olamni esa ikkilamchi (hosila) deb hisoblovchi falsafiy oqim.", "anchor": "Ong/g‘oya birlamchi, materiya ikkilamchi", "cluster": "ibtido"}, {"id": 16, "term": "Materializm", "etym": "lot. materialis — moddiy", "def": "materiyani birlamchi va abadiy, ong hamda tafakkurni esa materiya taraqqiyotining mahsuli (ikkilamchi) deb biluvchi falsafiy yo‘nalish.", "anchor": "Materiya birlamchi, ong ikkilamchi", "cluster": "ibtido"}, {"id": 17, "term": "Determinizm", "etym": "lot. determinare — belgilash", "def": "olamdagi barcha narsa va hodisalarning o‘zaro qonuniy aloqadorligi hamda sabab-oqibat bog‘lanishiga bo‘ysunishi haqidagi ta’limot.", "anchor": "Hamma narsa sabab-oqibatga bog‘liq", "cluster": "sababiyat"}, {"id": 18, "term": "Indeterminizm", "etym": "lot. in — inkor va determinizm", "def": "hodisalarning umumiy sababiy bog‘liqligini va obyektiv zaruriyatni inkor etib, tasodif yoki iroda erkinligini mutlaqlashtiruvchi qarash.", "anchor": "Sababiyatni inkor etish, tasodif", "cluster": "sababiyat"}, {"id": 19, "term": "Sekulyarizm", "etym": "lot. saecularis — dunyoviy", "def": "davlat boshqaruvi, huquq, ta’lim va ijtimoiy institutlarning diniy ta’sirdan mustaqil, dunyoviy tamoyillar asosida faoliyat yuritishi.", "anchor": "Davlat va ta’lim dindan mustaqil", "cluster": "din"}, {"id": 20, "term": "Agnostitsizm", "etym": "yun. a — inkor va gnosis — bilim", "def": "olamning asl mohiyatini va obyektiv voqelikni to‘liq hamda ishonchli bilish mumkinligini inkor etuvchi falsafiy ta’limot.", "anchor": "Olamni to‘liq bilish mumkin emas", "cluster": "din"}, {"id": 21, "term": "Nigilizm", "etym": "lot. nihil — hech nima", "def": "umume’tirof etilgan qadriyatlar, axloqiy me’yorlar, madaniy an’analar va ijtimoiy ideallarni keskin inkor etuvchi dunyoqarash.", "anchor": "Barcha qadriyat va me’yorlarni inkor", "cluster": "axloq"}, {"id": 22, "term": "Ateizm", "etym": "yun. atheos — xudosiz", "def": "g‘ayritabiiy kuchlar va xudoning mavjudligini hamda dinning ilohiy kelib chiqishini rad etuvchi qarashlar tizimi.", "anchor": "Xudo va g‘ayritabiiylikni rad etish", "cluster": "din"}, {"id": 23, "term": "Panteizm", "etym": "yun. pan — barcha va theos — xudo", "def": "xudo bilan tabiatni bir-biriga tenglashtiruvchi, ilohiy ibtidoni koinotning barcha qismlariga singgan deb biluvchi ta’limot.", "anchor": "Xudo = tabiat (koinotga singgan)", "cluster": "din"}, {"id": 24, "term": "Deizm", "etym": "lot. deus — xudo", "def": "xudo olamni ilk sabab sifatida yaratgan, biroq keyinchalik tabiat qonuniyatlari va jamiyat ishlariga aralashmaydi deb hisoblovchi ta’limot.", "anchor": "Xudo yaratgan, keyin aralashmaydi", "cluster": "din"}, {"id": 25, "term": "Monizm", "etym": "yun. monos — bitta, yagona", "def": "olamdagi barcha narsa va hodisalarning asosida bitta yagona ibtido (materiya yoki ruh) yotadi deb hisoblovchi falsafiy ta’limot.", "anchor": "Bitta yagona ibtido asos", "cluster": "ibtido"}, {"id": 26, "term": "Dualizm", "etym": "lot. dualis — ikkiyoqlama", "def": "borliqning asosida bir-biriga bo‘ysunmaydigan ikkita mustaqil substansiya — moddiy va ruhiy ibtido yotadi deb hisoblovchi ta’limot.", "anchor": "Ikkita mustaqil asos (moddiy + ruhiy)", "cluster": "ibtido"}, {"id": 27, "term": "Plyuralizm", "etym": "lot. pluralis — ko‘plik", "def": "borliq asosida ko‘plab mustaqil ibtidolar yotishini, jamiyatda esa fikrlar va qarashlar xilma-xilligini tan oluvchi tamoyil.", "anchor": "Ko‘plab ibtidolar va fikrlar xilma-xilligi", "cluster": "ibtido"}, {"id": 28, "term": "Sofistika", "etym": "yun. sophisma — mahorat, hiyla", "def": "bahsda tashqi jihatdan to‘g‘ri ko‘ringan, ammo mantiqan xato dalillar va so‘z o‘yinlari orqali xatoni haqiqatdek ko‘rsatish usuli.", "anchor": "Hiyla bilan xatoni haqiqatdek ko‘rsatish", "cluster": "mantiq_usul"}, {"id": 29, "term": "Skeptitsizm", "etym": "yun. skeptikos — shubhalanuvchi", "def": "har qanday bilimning mutlaq ishonchliligiga shubha bilan qarashni ilmiy-falsafiy fikrlash tamoyili sifatida ilgari suruvchi yo‘nalish.", "anchor": "Har qanday bilimga shubha qilish", "cluster": "mantiq_usul"}, {"id": 30, "term": "Stoitsizm", "etym": "yun. stoa — ustunli ayvon", "def": "hayotiy sinovlar oldida ruhiy xotirjamlik, burchga sadoqat, sabr-toqat va aql-idrok ustuvorligini saqlashni uqtiruvchi falsafiy maktab.", "anchor": "Ruhiy xotirjamlik, sabr va burch", "cluster": "axloq"}, {"id": 31, "term": "Evdemonizm", "etym": "yun. eudaimonia — baxt, saodat", "def": "baxtga va farovonlikka intilishni inson xulq-atvorining asosiy harakatlantiruvchi kuchi hamda oliy maqsadi deb biluvchi axloqiy yo‘nalish.", "anchor": "Oliy maqsad — baxt va saodat", "cluster": "axloq"}, {"id": 32, "term": "Gedonizm", "etym": "yun. hedone — lazzat, huzur", "def": "hayotning oliy ne’mati va xatti-harakatlarning bosh maqsadi huzur-halovatga erishish hamda azobdan qochishdir deb hisoblovchi ta’limot.", "anchor": "Oliy maqsad — huzur va lazzat", "cluster": "axloq"}, {"id": 33, "term": "Utilitarizm", "etym": "lot. utilitas — foyda, naf", "def": "xatti-harakatning axloqiy qimmatini uning keltiradigan amaliy foydasi va ko‘pchilik uchun yaratadigan farovonligi bilan o‘lchovchi ta’limot.", "anchor": "Axloq mezoni — ko‘pchilikka foyda", "cluster": "axloq"}, {"id": 34, "term": "Gumanizm", "etym": "lot. humanus — insoniy", "def": "inson shaxsining qadr-qimmati, erkinligi, huquqlari va har tomonlama kamol topishini oliy qadriyat sifatida e’tirof etuvchi qarashlar tizimi.", "anchor": "Inson qadri, erkinligi va huquqi", "cluster": "inson"}, {"id": 35, "term": "Egosentrizm", "etym": "lot. ego — men va centrum — markaz", "def": "insonning olamni va boshqalar fikrini faqat o‘z nuqtayi nazari hamda shaxsiy manfaati markazidan turib baholashga moyilligi.", "anchor": "Hamma narsani faqat o‘zidan baholash", "cluster": "axloq"}, {"id": 36, "term": "Absolyutizm", "etym": "lot. absolutus — shartsiz, cheksiz", "def": "gnoseologiyada haqiqatning o‘zgarmas va yakuniy ekanligini, siyosatda esa oliy hokimiyatning bir shaxs qo‘lida cheksiz to‘planishini anglatadi.", "anchor": "Haqiqat o‘zgarmas / cheksiz hokimiyat", "cluster": "zamonaviy"}, {"id": 37, "term": "Mifologiya", "etym": "yun. mythos — rivoyat, afsona", "def": "qadimgi insonlarning olam paydo bo‘lishi, tabiat va jamiyat haqidagi obrazli, fantastik tasavvurlari majmui hamda ularni o‘rganuvchi soha.", "anchor": "Qadimgi afsona va rivoyatlar", "cluster": "zamonaviy"}, {"id": 38, "term": "Ekzistensializm", "etym": "lot. existentia — mavjudlik", "def": "insonning betakror individual mavjudligi, ichki kechinmalari, erkinligi, tanlovi va hayot ma’nosini markazga qo‘yuvchi falsafiy oqim.", "anchor": "Individual mavjudlik, tanlov, ma’no", "cluster": "inson"}, {"id": 39, "term": "Personalizm", "etym": "lot. persona — shaxs", "def": "shaxsni birlamchi ijodiy voqelik va oliy ma’naviy qadriyat deb tan oluvchi, olamni oliy shaxs faoliyatining ifodasi sifatida talqin etuvchi oqim.", "anchor": "Shaxs — birlamchi oliy qadriyat", "cluster": "inson"}, {"id": 40, "term": "Strukturalizm", "etym": "lot. structura — tuzilish", "def": "madaniy, ijtimoiy va til hodisalarini ularning ichki barqaror tuzilmasi hamda elementlararo qonuniy munosabatlari orqali tahlil qiluvchi yo‘nalish.", "anchor": "Ichki barqaror tuzilma orqali tahlil", "cluster": "zamonaviy"}, {"id": 41, "term": "Poststrukturalizm", "etym": "lot. post — keyin va strukturalizm", "def": "qat’iy yopiq tuzilmalarni tanqid qilib, ma’nolarning ko‘p qirraliligi, o‘zgaruvchanligi va tarixiy-madaniy kontekstga bog‘liqligini urg‘ulovchi oqim.", "anchor": "Yopiq tuzilmalarni tanqid, ko‘p ma’nolilik", "cluster": "zamonaviy"}, {"id": 42, "term": "Postmodernizm", "etym": "fr. postmodernisme — modernizmdan keyingi", "def": "yagona mutlaq haqiqat va universal nazariyalarni rad etib, ko‘p fikrlilik, parchalanganlik hamda kinoyani ilgari suruvchi yo‘nalish.", "anchor": "Mutlaq haqiqatni rad, ko‘p fikrlilik", "cluster": "zamonaviy"}, {"id": 43, "term": "Pozitivizm", "etym": "lot. positivus — ijobiy", "def": "haqiqiy bilim faqat aniq fanlar va empirik tajriba orqali olinadi, mavhum metafizik masalalar esa ilmiy ahamiyatga ega emas deb hisoblovchi oqim.", "anchor": "Faqat aniq fan va tajriba", "cluster": "bilish_oqim"}, {"id": 44, "term": "Neopozitivizm", "etym": "yun. neos — yangi va pozitivizm", "def": "XX asrda shakllangan, falsafaning vazifasini ilmiy tilni mantiqiy-lingvistik tahlil qilish va tekshirish bilan cheklovchi oqim.", "anchor": "Falsafa = ilmiy tilni mantiqiy tahlil", "cluster": "bilish_oqim"}, {"id": 45, "term": "Irratsionalizm", "etym": "lot. irrationalis — aqlga sig‘maydigan", "def": "olamni bilishda aql imkoniyatlarini cheklangan deb bilib, intuitsiya, hissiyot, instinkt yoki irodani ustun qo‘yuvchi yo‘nalish.", "anchor": "Aqldan ko‘ra hissiyot va intuitsiya ustun", "cluster": "bilish_oqim"}, {"id": 46, "term": "Apeyron", "etym": "yun. apeiron — cheksiz, noaniq", "def": "qadimgi yunon faylasufi Anaksimandr kiritgan tushuncha bo‘lib, barcha narsalar asosida yotuvchi cheksiz va abadiy ilk materiyani anglatadi.", "anchor": "Anaksimandrning cheksiz ilk materiyasi", "cluster": "ibtido"}, {"id": 47, "term": "Paradigma", "etym": "yun. paradeigma — namuna, andoza", "def": "muayyan tarixiy davrda ilmiy hamjamiyat tan olgan, muammolarni qo‘yish va yechish namunasi bo‘luvchi nazariy-metodologik tamoyillar majmui.", "anchor": "Ilmiy hamjamiyat tan olgan andoza", "cluster": "zamonaviy"}, {"id": 48, "term": "Transsendental", "etym": "lot. transcendens — chegaradan chiquvchi", "def": "I. Kant falsafasida tajribadan oldin (aprior) mavjud bo‘lib, insonning bilish faoliyatini imkonli qiluvchi umumiy shakllar.", "anchor": "Kant: tajribadan oldingi (aprior) shakllar", "cluster": "zamonaviy"}, {"id": 49, "term": "Kategoriyalar", "etym": "yun. kategoria — fikr, belgi", "def": "borliq va bilishning eng umumiy, muhim xossalari hamda qonuniy aloqadorliklarini aks ettiruvchi fundamental falsafiy tushunchalar.", "anchor": "Eng umumiy falsafiy tushunchalar", "cluster": "zamonaviy"}, {"id": 50, "term": "Substansiya", "etym": "lot. substantia — mohiyat, asos", "def": "mavjud bo‘lishi uchun o‘zidan boshqa hech narsaga muhtoj bo‘lmagan, barcha narsa va hodisalarning o‘zgarmas ichki asosi hisoblangan mustaqil borliq.", "anchor": "O‘zidan boshqaga muhtoj bo‘lmagan asos", "cluster": "ibtido"}, {"id": 51, "term": "Dialektik inkor", "etym": "", "def": "taraqqiyot jarayonida eskining shunchaki yo‘q qilinishi emas, balki undagi barcha ijobiy jihatlarning saqlab qolinib, yuqoriroq bosqichda boyitilishi (vorisiylik).", "anchor": "Eskining ijobiy jihatini saqlab rivojlanish", "cluster": "sababiyat"}, {"id": 52, "term": "Sintez", "etym": "yun. synthesis — birlashtirish", "def": "tahlil (analiz) jarayonida ajratilgan qismlar, xossa va belgilarni fikran yoki amalda yaxlit bir butunlikka birlashtirib o‘rganish usuli.", "anchor": "Qismlarni yaxlit butunlikka birlashtirish", "cluster": "mantiq_usul"}, {"id": 53, "term": "Analiz", "etym": "yun. analysis — parchalash, ajratish", "def": "o‘rganilayotgan butun predmet yoki hodisani uning tarkibiy qismlariga, tomonlariga va belgilariga ajratib tadqiq etish metodi.", "anchor": "Butunni tarkibiy qismlarga ajratish", "cluster": "mantiq_usul"}, {"id": 54, "term": "Induksiya", "etym": "lot. inductio — yo‘naltirish", "def": "juz’iy (yakka, xususiy) fakt va holatlardan umumiy qonuniyat hamda xulosalarga qarab boruvchi mantiqiy fikrlash va bilish usuli.", "anchor": "Xususiydan umumiyga xulosa chiqarish", "cluster": "mantiq_usul"}, {"id": 55, "term": "Deduksiya", "etym": "lot. deductio — chiqarish", "def": "umumiy ilmiy qoidalar, qonunlar yoki aksiomalardan mantiqiy yo‘l bilan xususiy (yakka) xulosalar keltirib chiqarish usuli.", "anchor": "Umumiydan xususiyga xulosa chiqarish", "cluster": "mantiq_usul"}, {"id": 56, "term": "Analogiya", "etym": "yun. analogia — moslik, o‘xshashlik", "def": "ikki yoki undan ortiq hodisaning ayrim belgilaridagi o‘xshashlikka asoslanib, ularning boshqa belgilari ham o‘xshashligi haqida xulosa chiqarish.", "anchor": "O‘xshashlik asosida xulosa chiqarish", "cluster": "mantiq_usul"}, {"id": 57, "term": "Aql", "etym": "", "def": "inson bilish faoliyatining oliy bosqichi bo‘lib, tushunchalarni ijodiy sintez qilish, narsalarning ichki mohiyatini ochish hamda maqsadga muvofiq fikrlash qobiliyatidir.", "anchor": "Bilishning oliy ijodiy bosqichi", "cluster": "ong_bilish"}, {"id": 58, "term": "Ong", "etym": "", "def": "oliy darajada tashkil topgan materiya (inson miyasi)ning xossasi bo‘lib, obyektiv voqelikni ideal obrazlar shaklida maqsadga muvofiq va ijodiy aks ettirishning oliy shakli.", "anchor": "Miyaning voqelikni ideal aks ettirishi", "cluster": "ong_bilish"}, {"id": 59, "term": "Intellekt", "etym": "lot. intellectus — tushunish, idrok", "def": "insonning fikrlash, bilim olish, muammolarni tahlil qilish, yangi vaziyatlarga moslashish va tajribani amalda qo‘llash qobiliyati.", "anchor": "Fikrlash, tahlil va moslashish qobiliyati", "cluster": "ong_bilish"}, {"id": 60, "term": "Ruh", "etym": "", "def": "inson va jamiyat hayotining nomoddiy, ideal ichki asosi; falsafada tafakkur, ong, iroda va ma’naviy-axloqiy kuchlarning oliy birligi sifatida talqin etiluvchi tushuncha.", "anchor": "Nomoddiy, ideal ichki asos", "cluster": "ong_bilish"}, {"id": 61, "term": "Qadriyat", "etym": "", "def": "tabiat va jamiyatdagi narsa, hodisa yoki g‘oyalarning inson va jamiyat ehtiyojlari, manfaatlari hamda ma’naviy kamoloti uchun ijobiy ahamiyatini ifodalovchi kategoriya.", "anchor": "Inson va jamiyat uchun ijobiy ahamiyat", "cluster": "qadriyat"}, {"id": 62, "term": "Me’yor (falsafada)", "etym": "", "def": "predmetning sifat va miqdor ko‘rsatkichlari uyg‘unligi chegarasi; miqdor o‘zgarishlari shu chegara ichida qolsa, predmet o‘z sifatini yo‘qotmaydi.", "anchor": "Sifat va miqdor uyg‘unligi chegarasi", "cluster": "sababiyat"}, {"id": 63, "term": "Apologetika", "etym": "yun. apologetikos — himoya qiluvchi", "def": "muayyan diniy ta’limot, falsafiy oqim yoki g‘oyaviy tizimni tanqidlardan aqliy dalillar yordamida qat’iy himoya qilish sohasi.", "anchor": "Ta’limotni aqliy dalillar bilan himoya", "cluster": "din"}, {"id": 64, "term": "Teologiya", "etym": "yun. theos — xudo, logos — ta’limot", "def": "ilohiyotshunoslik; muayyan dinning aqidalarini va muqaddas manbalarini tizimli asoslash hamda sharhlash bilan shug‘ullanuvchi soha.", "anchor": "Ilohiyotshunoslik (din aqidalarini sharhlash)", "cluster": "din"}, {"id": 65, "term": "Kosmologiya", "etym": "yun. kosmos — koinot, logos- ta’limot", "def": "Koinotning yaxlit bir butun sifatidagi tuzilishi, kelib chiqishi, evolyutsiyasi va umumiy qonuniyatlarini o‘rganuvchi soha.", "anchor": "Koinotning tuzilishi va evolyutsiyasi", "cluster": "sentrizm"}, {"id": 66, "term": "Antropologiya", "etym": "yun. anthropos — inson, logos — ta’limot", "def": "insonning biologik kelib chiqishi, evolyutsiyasi, jismoniy tuzilishi va ijtimoiy-madaniy shakllanishini o‘rganuvchi fanlar majmui.", "anchor": "Insonning biologik va madaniy shakllanishi", "cluster": "inson"}, {"id": 67, "term": "Sinergetika", "etym": "yun. synergeia — hamkorlik", "def": "ochiq, chiziqsiz murakkab tizimlarda tartibsizlikdan (xaosdan) o‘z-o‘zini tashkil etish va rivojlanish qonuniyatlarini o‘rganuvchi yo‘nalish.", "anchor": "Xaosdan o‘z-o‘zini tashkil etish fani", "cluster": "sababiyat"}, {"id": 68, "term": "Subyekt", "etym": "lot. subjectus — asosda yotuvchi", "def": "bilish va amaliy o‘zgartirish faoliyatini ongli ravishda amalga oshiruvchi faol tomon (shaxs, ijtimoiy guruh yoki insoniyat).", "anchor": "Bilishni amalga oshiruvchi faol tomon", "cluster": "ong_bilish"}, {"id": 69, "term": "Obyekt", "etym": "lot. objectum — predmet", "def": "subyektning bilish va amaliy faoliyati yo‘naltirilgan moddiy yoki ma’naviy voqelik qismi, tadqiqot va ta’sir predmeti.", "anchor": "Faoliyat yo‘naltirilgan predmet", "cluster": "ong_bilish"}, {"id": 70, "term": "Bilish", "etym": "", "def": "inson tomonidan tashqi olam va o‘z-o‘zining qonuniyatlarini hissiy hamda aqliy faoliyat orqali ongli aks ettirish, yangi bilimlarni hosil qilish jarayoni.", "anchor": "Olamni aks ettirib yangi bilim olish", "cluster": "ong_bilish"}, {"id": 71, "term": "Haqiqat", "etym": "", "def": "bilimning obyektiv voqelikka mos kelishi; mazmuni jihatidan inson va insoniyatga bog‘liq bo‘lmagan holda predmetni qanday bo‘lsa, shundayligicha to‘g‘ri aks ettiruvchi bilim.", "anchor": "Bilimning obyektiv voqelikka mosligi", "cluster": "ong_bilish"}, {"id": 72, "term": "G‘oya", "etym": "yun. idea — tushuncha, tasavvur", "def": "voqelikni aks ettiruvchi va uni o‘zgartirishga, muayyan maqsadni amalga oshirishga yo‘naltirilgan, jamiyatni harakatga keltiruvchi teran fikr.", "anchor": "Voqelikni o‘zgartiruvchi teran fikr", "cluster": "ong_bilish"}, {"id": 73, "term": "Tasavvur", "etym": "", "def": "hissiy bilishning uchinchi bosqichi; avval idrok etilgan narsa va hodisalarning sezgi a’zolariga bevosita ta’sir etmagan holda xotira yoki xayolda qayta tiklangan obrazi.", "anchor": "Xotira yoki xayolda tiklangan obraz", "cluster": "ong_bilish"}, {"id": 74, "term": "Tajriba", "etym": "", "def": "insonning tashqi olam bilan bevosita amaliy va hissiy o‘zaro ta’siri jarayoni hamda shu jarayon natijasida to‘plangan bilim, ko‘nikma va kuzatishlar majmui.", "anchor": "Olam bilan bevosita amaliy ta’sir", "cluster": "ong_bilish"}, {"id": 75, "term": "Intuitsiya", "etym": "lot. intueri — sinchiklab qarash", "def": "mantiqiy isbot va uzoq muhokamalarsiz, to‘satdan «fikriy yorishish» orqali haqiqatni yoki yechimni bevosita ilg‘ab olish qobiliyati.", "anchor": "Isbotsiz to‘satdan «fikriy yorishish»", "cluster": "ong_bilish"}, {"id": 76, "term": "Ehtiyoj", "etym": "", "def": "tirik organizm, shaxs yoki jamiyatning normal yashashi va rivojlanishi uchun zarur bo‘lgan moddiy hamda ma’naviy shart-sharoitlarga bo‘lgan ichki zaruriyat.", "anchor": "Normal yashash uchun ichki zaruriyat", "cluster": "qadriyat"}, {"id": 77, "term": "Erkinlik", "etym": "", "def": "insonning obyektiv qonuniyatlarni va shart-sharoitlarni anglagan holda o‘z maqsadlariga muvofiq mustaqil qaror qabul qilish, tanlash va harakat qilish imkoniyati.", "anchor": "Qonuniyatni anglab mustaqil tanlash", "cluster": "qadriyat"}, {"id": 78, "term": "Mas’uliyat", "etym": "", "def": "shaxsning o‘z erkin tanlovi, xatti-harakatlari va ularning oqibatlari uchun o‘z vijdoni hamda jamiyat oldida javobgarlikni anglashi va zimmasiga olishi.", "anchor": "Erkin tanlov oqibatiga javobgarlik", "cluster": "qadriyat"}, {"id": 79, "term": "Burch", "etym": "", "def": "jamiyat va axloqiy me’yorlar tomonidan qo‘yilgan talablarning shaxs tomonidan ichki e’tiqod va vijdon amri sifatida anglangan axloqiy majburiyati.", "anchor": "Vijdon amri sifatidagi axloqiy majburiyat", "cluster": "qadriyat"}, {"id": 80, "term": "Borliq", "etym": "", "def": "mavjud bo‘lgan barcha moddiy va ma’naviy voqelikni (tabiat, jamiyat, inson ongi va g‘oyalar olamini) o‘z ichiga oluvchi eng keng va umumiy falsafiy kategoriya.", "anchor": "Mavjud barcha moddiy-ma’naviy voqelik", "cluster": "ibtido"}, {"id": 81, "term": "Hodisa", "etym": "", "def": "predmetning ichki mohiyatini tashqi tomondan namoyon etuvchi, sezgi a’zolari va kuzatish orqali bevosita idrok qilinadigan o‘zgaruvchan va harakatchan tomoni.", "anchor": "Mohiyatning tashqi seziladigan tomoni", "cluster": "ibtido"}, {"id": 82, "term": "Empatiya", "etym": "yun. empatheia — hamdardlik", "def": "boshqa insonning ruhiy holati, his-tuyg‘ulari va kechinmalarini tushunish, o‘zini uning o‘rniga qo‘yib ko‘rish va hamdard bo‘lish qobiliyati.", "anchor": "Boshqaning holatini tushunish, hamdardlik", "cluster": "inson"}, {"id": 83, "term": "Noosfera", "etym": "yun. noos — aql, sphaira — qobiq", "def": "biosferaning yangi bosqichi bo‘lib, unda inson aqli va ilmiy-amaliy faoliyati tabiat hamda jamiyat taraqqiyotining hal qiluvchi omiliga aylanadi.", "anchor": "Inson aqli hal qiluvchi biosfera bosqichi", "cluster": "sentrizm"}, {"id": 84, "term": "Kognitivizm", "etym": "lot. cognitio — bilish, anglash", "def": "inson ongi va xulq-atvorini axborotni qabul qilish, qayta ishlash, saqlash hamda bilim tuzilmalarini shakllantirish orqali tushuntiruvchi yondashuv.", "anchor": "Ongni axborot qayta ishlash deb qarash", "cluster": "ong_bilish"}, {"id": 85, "term": "Teosentrizm", "etym": "yun. theos — xudo, lot. centrum — markaz", "def": "O‘rta asrlar falsafasiga xos dunyoqarash bo‘lib, unda barcha borliqning manbai va oliy maqsadi sifatida Xudo markazga qo‘yiladi.", "anchor": "O‘rta asr: markazda Xudo", "cluster": "sentrizm"}, {"id": 86, "term": "Semiotika", "etym": "yun. semeion — belgi, ishora", "def": "tabiat va jamiyatdagi belgilar hamda belgilar tizimi (tillar, ramzlar, kodlar)ning tuzilishi, xossalari va amal qilishini o‘rganuvchi fan.", "anchor": "Belgilar va ramzlar tizimi fani", "cluster": "zamonaviy"}, {"id": 87, "term": "Sinergetik tafakkur", "etym": "", "def": "voqelikni murakkab, ochiq, chiziqsiz, ko‘p muqobilli va o‘z-o‘zini tashkil etuvchi tizim sifatida idrok etishga asoslangan zamonaviy ilmiy-falsafiy fikrlash uslubi.", "anchor": "Murakkab, ochiq, ko‘p muqobilli fikrlash", "cluster": "sababiyat"}, {"id": 88, "term": "Kosmotsentrizm", "etym": "yun. kosmos — koinot, lot. centrum — markaz", "def": "Qadimgi dunyo falsafasiga xos qarash bo‘lib, inson va jamiyatni yaxlit hamda uyg‘un Koinotning ajralmas qismi deb tushuntiradi.", "anchor": "Qadimgi dunyo: markazda Koinot", "cluster": "sentrizm"}, {"id": 89, "term": "Teleologiya", "etym": "yun. telos — maqsad, logos — ta’limot", "def": "tabiat va tarixdagi barcha jarayonlar oldindan belgilangan oliy maqsadga muvofiq ravishda sodir bo‘ladi deb hisoblovchi ta’limot.", "anchor": "Hamma jarayon oliy maqsadga bo‘ysunadi", "cluster": "sababiyat"}, {"id": 90, "term": "Antroposentrizm", "etym": "yun. anthropos — inson, lot. centrum — markaz", "def": "Uyg‘onish davrida kuchaygan qarash bo‘lib, insonni koinotning markazi va barcha hodisalarning oliy maqsadi deb biladi.", "anchor": "Uyg‘onish davri: markazda Inson", "cluster": "sentrizm"}, {"id": 91, "term": "Naturfalsafa", "etym": "lot. natura — tabiat", "def": "tabiat falsafasi; tabiatni yaxlit holda sof aqliy va falsafiy mushohadalar yordamida tushuntirishga uringan tarixiy-falsafiy ta’limotlar majmui.", "anchor": "Tabiatni falsafiy mushohada bilan tushuntirish", "cluster": "sentrizm"}, {"id": 92, "term": "Irratsionallik", "etym": "", "def": "mantiqiy qonunlar, tushunchalar va aqliy tahlil doirasiga to‘liq sig‘maydigan, hissiyot, instinkt, ilhom yoki ongsizlik bilan bog‘liq hodisa va jarayonlar xususiyati.", "anchor": "Mantiqqa sig‘maydigan hissiyot va ongsizlik", "cluster": "bilish_oqim"}, {"id": 93, "term": "Egoizm", "etym": "lot. ego — men", "def": "shaxsning o‘z xulq-atvorida faqat shaxsiy manfaati va foydasini boshqalar hamda jamiyat manfaatlaridan ustun qo‘yishga asoslangan tamoyil (xudbinlik).", "anchor": "Faqat shaxsiy manfaatni ustun qo‘yish", "cluster": "axloq"}, {"id": 94, "term": "Realizm", "etym": "lot. realis — haqiqiy", "def": "O‘rta asr falsafasida umumiy tushunchalar (universaliyalar) yakka narsalardan mustaqil real mavjud deb biluvchi oqim; yangi davrda obyektiv voqelikni tan oluvchi yo‘nalish.", "anchor": "Umumiy tushunchalar mustaqil real mavjud", "cluster": "universaliya"}, {"id": 95, "term": "Nominalizm", "etym": "lot. nomen — nom, ism", "def": "O‘rta asr falsafasida faqat yakka narsalar real mavjud bo‘lib, umumiy tushunchalar inson tomonidan berilgan nomlardir deb hisoblovchi yo‘nalish.", "anchor": "Faqat yakka narsalar real, umumiy — nom", "cluster": "universaliya"}, {"id": 96, "term": "Konseptualizm", "etym": "lot. conceptus — tushuncha", "def": "umumiy tushunchalar narsalardan mustaqil mavjud emas, lekin quruq nom ham bo‘lmay, narsalarning umumiy belgilarini ongda aks ettiradi deb biluvchi oqim.", "anchor": "Umumiy tushunchalar ongda aks etadi", "cluster": "universaliya"}, {"id": 97, "term": "Skeptik yondashuv", "etym": "", "def": "har qanday da’vo yoki ma’lumotni ko‘r-ko‘rona qabul qilmasdan, uni tanqidiy tahlil, mantiqiy tekshiruv va dalillar asosida sinovdan o‘tkazishga tayangan ilmiy munosabat.", "anchor": "Da’voni tanqidiy tahlil va dalil bilan tekshirish", "cluster": "mantiq_usul"}, {"id": 98, "term": "Transgumanizm", "etym": "lot. trans — orqali, humanus — insoniy", "def": "ilg‘or fan va texnologiyalar yordamida insonning jismoniy hamda aqliy imkoniyatlarini kengaytirish, qarish va kasalliklarni yengishni targ‘ib qiluvchi oqim.", "anchor": "Texnologiya bilan inson imkoniyatini kengaytirish", "cluster": "inson"}, {"id": 99, "term": "Falsafiy antropologiya", "etym": "", "def": "insonning kelib chiqishi, asl mohiyati, borliqdagi o‘rni hamda o‘ziga xos mavjudlik shart-sharoitlarini yaxlit falsafiy tahlil qiluvchi maxsus falsafa bo‘limi.", "anchor": "Inson mohiyati va borliqdagi o‘rni bo‘limi", "cluster": "inson"}, {"id": 100, "term": "E’tiqod", "etym": "", "def": "muayyan g‘oya, qadriyat, ta’limot yoki maqsadning to‘g‘riligiga bo‘lgan chuqur va mustahkam ishonch bo‘lib, inson dunyoqarashining o‘zagi hamda xatti-harakatlarining ma’naviy yo‘naltiruvchisidir.", "anchor": "G‘oya va qadriyatga chuqur mustahkam ishonch", "cluster": "qadriyat"}];
+    const CLUSTERS = [{"id": "bolimlar", "title": "Falsafaning asosiy bo‘limlari", "hint": "Ko‘pi -logiya / -ika bilan tugaydi", "color": "indigo", "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]}, {"id": "ibtido", "title": "Borliq va ibtido (1, 2, ko‘p)", "hint": "Idealizm ↔ Materializm | Monizm / Dualizm / Plyuralizm", "color": "violet", "ids": [15, 16, 25, 26, 27, 46, 50, 80, 81]}, {"id": "din", "title": "Xudo, din va dunyoviylik", "hint": "Ateizm vs Panteizm vs Deizm vs Agnostitsizm", "color": "amber", "ids": [19, 20, 22, 23, 24, 63, 64]}, {"id": "sentrizm", "title": "3 ta «-sentrizm» va Tabiat/Koinot", "hint": "Qadimgi: Kosmos → O‘rta asr: Teo → Uyg‘onish: Antropo", "color": "cyan", "ids": [85, 88, 90, 65, 91, 83]}, {"id": "bilish_oqim", "title": "Bilish oqimlari (Tajriba ↔ Aql ↔ Hissiyot)", "hint": "Empirizm ↔ Ratsionalizm ↔ Irratsionalizm", "color": "emerald", "ids": [10, 11, 12, 13, 14, 43, 44, 45, 92]}, {"id": "mantiq_usul", "title": "Mantiqiy usullar (Juftliklar)", "hint": "Analiz ↔ Sintez | Induksiya ↔ Deduksiya | Analogiya", "color": "sky", "ids": [52, 53, 54, 55, 56, 28, 29, 97]}, {"id": "universaliya", "title": "O‘rta asr universaliyalari (3 talik)", "hint": "Realizm (real) ↔ Nominalizm (nom) ↔ Konseptualizm (ongda)", "color": "rose", "ids": [94, 95, 96]}, {"id": "sababiyat", "title": "Sababiyat, rivojlanish va sinergetika", "hint": "Determinizm ↔ Indeterminizm | Sinergetika & Teleologiya", "color": "teal", "ids": [17, 18, 51, 62, 67, 87, 89]}, {"id": "axloq", "title": "Axloq va hayotiy oqimlar", "hint": "Baxt (Evdemonizm) | Lazzat (Gedonizm) | Foyda (Utilitarizm)", "color": "orange", "ids": [21, 30, 31, 32, 33, 35, 93]}, {"id": "inson", "title": "Inson va shaxs falsafasi", "hint": "Gumanizm, Ekzistensializm, Personalizm, Transgumanizm", "color": "pink", "ids": [34, 38, 39, 66, 82, 98, 99]}, {"id": "zamonaviy", "title": "Tuzilma, til va zamonaviy tushunchalar", "hint": "Strukturalizm → Poststrukturalizm → Postmodernizm", "color": "fuchsia", "ids": [36, 37, 40, 41, 42, 47, 48, 49, 86]}, {"id": "ong_bilish", "title": "Ong, aql va bilish jarayoni", "hint": "Subyekt ↔ Obyekt | Aql, Ong, Intellekt, Intuitsiya", "color": "blue", "ids": [57, 58, 59, 60, 68, 69, 70, 71, 72, 73, 74, 75, 84]}, {"id": "qadriyat", "title": "Qadriyat, erkinlik, mas’uliyat va burch", "hint": "Erkinlik → Mas’uliyat → Burch → E’tiqod", "color": "lime", "ids": [61, 76, 77, 78, 79, 100]}];
+    const TERM_MAP = Object.fromEntries(TERMS.map(t => [t.id, t]));
+    const CLUSTER_MAP = Object.fromEntries(CLUSTERS.map(c => [c.id, c]));
+
+    const STORAGE_KEY = 'falsafa_100_state_v1';
+
+    let state = {
+      tab: 'flashcards',
+      dark: true,
+      mastered: new Set(),
+      hard: new Set(),
+      // Flashcards state
+      fcScope: 'b1',
+      fcClusterId: null,
+      fcReverse: false,
+      fcQueue: [],
+      fcIndex: 0,
+      fcFlipped: false,
+      fcHintVisible: false,
+      // Quiz state
+      qzScope: 'b1',
+      qzClusterId: null,
+      qzDir: 'def2term', // 'def2term' or 'term2def'
+      qzQueue: [],
+      qzIndex: 0,
+      qzOk: 0,
+      qzBad: 0,
+      qzStreak: 0,
+      qzMissed: [],
+      qzAnswered: false,
+      qzCurrentOptions: [],
+      qzAutoTimer: null,
+      // List state
+      lsFilter: 'all',
+      lsQuery: '',
+      lsBlur: false,
+    };
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.mastered)) state.mastered = new Set(parsed.mastered);
+        if (Array.isArray(parsed.hard)) state.hard = new Set(parsed.hard);
+        if (typeof parsed.dark === 'boolean') state.dark = parsed.dark;
+      } catch (e) {}
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          mastered: Array.from(state.mastered),
+          hard: Array.from(state.hard),
+          dark: state.dark,
+        }));
+      } catch (e) {}
+    }
+
+    function applyTheme() {
+      document.documentElement.classList.toggle('dark', state.dark);
+    }
+
+    function shuffleArr(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function getScopedTerms(scope, clusterId) {
+      if (clusterId && CLUSTER_MAP[clusterId]) {
+        return CLUSTER_MAP[clusterId].ids.map(id => TERM_MAP[id]).filter(Boolean);
+      }
+      if (scope === 'b1') return TERMS.filter(t => t.id >= 1 && t.id <= 20);
+      if (scope === 'b2') return TERMS.filter(t => t.id >= 21 && t.id <= 40);
+      if (scope === 'b3') return TERMS.filter(t => t.id >= 41 && t.id <= 60);
+      if (scope === 'b4') return TERMS.filter(t => t.id >= 61 && t.id <= 80);
+      if (scope === 'b5') return TERMS.filter(t => t.id >= 81 && t.id <= 100);
+      if (scope === 'unmastered') return TERMS.filter(t => !state.mastered.has(t.id));
+      if (scope === 'hard') return TERMS.filter(t => state.hard.has(t.id));
+      return TERMS.slice();
+    }
+
+    function updateHeader() {
+      const m = state.mastered.size;
+      const h = state.hard.size;
+      document.getElementById('hdr-mastered').textContent = `${m}/100 yodlandi`;
+      document.getElementById('hdr-hard').textContent = `${h} qiyin`;
+      document.getElementById('global-progress-bar').style.width = `${m}%`;
+    }
+
+    function switchTab(tabName) {
+      state.tab = tabName;
+      if (state.qzAutoTimer) {
+        clearTimeout(state.qzAutoTimer);
+        state.qzAutoTimer = null;
+      }
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const active = btn.dataset.tab === tabName;
+        btn.className = active
+          ? 'tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-indigo-600 text-white shadow-sm'
+          : 'tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
+      });
+      ['flashcards', 'quiz', 'clusters', 'list'].forEach(v => {
+        document.getElementById('view-' + v).classList.toggle('hidden', v !== tabName);
+      });
+      if (tabName === 'clusters') renderClusters();
+      if (tabName === 'list') renderList();
+      if (tabName === 'flashcards') renderFlashcard();
+    }
+
+    // ==================== FLASHCARDS ====================
+    function initFlashcards(doShuffle = false) {
+      let items = getScopedTerms(state.fcScope, state.fcClusterId);
+      if (doShuffle) items = shuffleArr(items);
+      state.fcQueue = items.map(t => t.id);
+      state.fcIndex = 0;
+      state.fcFlipped = false;
+      state.fcHintVisible = false;
+      renderFlashcard();
+    }
+
+    function renderFlashcard() {
+      const stage = document.getElementById('fc-stage');
+      const done = document.getElementById('fc-done');
+      const counter = document.getElementById('fc-counter');
+
+      if (!state.fcQueue.length || state.fcIndex >= state.fcQueue.length) {
+        stage.classList.add('hidden');
+        done.classList.remove('hidden');
+        counter.textContent = '0 / 0';
+        const msg = state.fcQueue.length === 0
+          ? 'Tanlangan filtrda hozircha atama yo‘q. Boshqa blokni tanlang!'
+          : `Siz barcha ${state.fcQueue.length} ta kartochkani ko‘rib chiqdingiz. Endi Tez Test bilan mustahkamlang!`;
+        document.getElementById('fc-done-msg').textContent = msg;
+        return;
+      }
+
+      stage.classList.remove('hidden');
+      done.classList.add('hidden');
+
+      const term = TERM_MAP[state.fcQueue[state.fcIndex]];
+      const cluster = CLUSTER_MAP[term.cluster];
+
+      counter.textContent = `${state.fcIndex + 1} / ${state.fcQueue.length}`;
+      document.getElementById('fc-front-badge').textContent = `#${term.id}` + (state.hard.has(term.id) ? ' • Qiyin' : state.mastered.has(term.id) ? ' • ✓' : '');
+      document.getElementById('fc-front-cluster').textContent = cluster ? cluster.title : '';
+
+      const frontMain = document.getElementById('fc-front-main');
+      const hintBtn = document.getElementById('fc-hint-btn');
+      const etymBox = document.getElementById('fc-etym-box');
+
+      if (!state.fcReverse) {
+        frontMain.className = 'text-2xl sm:text-4xl font-extrabold tracking-tight leading-snug';
+        frontMain.textContent = term.term;
+        hintBtn.classList.toggle('hidden', !term.etym);
+        if (term.etym && state.fcHintVisible) {
+          etymBox.textContent = term.etym;
+          etymBox.classList.remove('hidden');
+        } else {
+          etymBox.classList.add('hidden');
+        }
+        document.getElementById('fc-back-title').textContent = `#${term.id} ${term.term}`;
+        document.getElementById('fc-back-etym').textContent = term.etym || '';
+        document.getElementById('fc-back-anchor').textContent = term.anchor;
+        document.getElementById('fc-back-def').textContent = term.def;
+      } else {
+        frontMain.className = 'text-base sm:text-xl font-bold leading-relaxed text-left';
+        frontMain.textContent = term.def;
+        hintBtn.classList.toggle('hidden', !term.etym);
+        if (term.etym && state.fcHintVisible) {
+          etymBox.textContent = 'Ildizi: ' + term.etym;
+          etymBox.classList.remove('hidden');
+        } else {
+          etymBox.classList.add('hidden');
+        }
+        document.getElementById('fc-back-title').textContent = `Javob (#${term.id})`;
+        document.getElementById('fc-back-etym').textContent = term.etym || '';
+        document.getElementById('fc-back-anchor').textContent = term.term;
+        document.getElementById('fc-back-def').textContent = 'Kalit: ' + term.anchor;
+      }
+
+      document.getElementById('fc-card-inner').classList.toggle('is-flipped', state.fcFlipped);
+    }
+
+    function flipFlashcard() {
+      if (!state.fcQueue.length || state.fcIndex >= state.fcQueue.length) return;
+      state.fcFlipped = !state.fcFlipped;
+      document.getElementById('fc-card-inner').classList.toggle('is-flipped', state.fcFlipped);
+    }
+
+    function markFlashcard(knew) {
+      if (!state.fcQueue.length || state.fcIndex >= state.fcQueue.length) return;
+      const id = state.fcQueue[state.fcIndex];
+      if (knew) {
+        state.mastered.add(id);
+        state.hard.delete(id);
+      } else {
+        state.hard.add(id);
+        state.mastered.delete(id);
+        // Re-insert 3 cards ahead for active recall repetition
+        const insertAt = Math.min(state.fcIndex + 4, state.fcQueue.length);
+        state.fcQueue.splice(insertAt, 0, id);
+      }
+      saveProgress();
+      updateHeader();
+      state.fcIndex += 1;
+      state.fcFlipped = false;
+      state.fcHintVisible = false;
+      renderFlashcard();
+    }
+
+    // ==================== SPRINT QUIZ ====================
+    function initQuiz(customIds = null) {
+      if (state.qzAutoTimer) {
+        clearTimeout(state.qzAutoTimer);
+        state.qzAutoTimer = null;
+      }
+      let items;
+      if (Array.isArray(customIds)) {
+        items = customIds.map(id => TERM_MAP[id]).filter(Boolean);
+      } else {
+        items = getScopedTerms(state.qzScope, state.qzClusterId);
+      }
+      state.qzQueue = shuffleArr(items.map(t => t.id));
+      state.qzIndex = 0;
+      state.qzOk = 0;
+      state.qzBad = 0;
+      state.qzStreak = 0;
+      state.qzMissed = [];
+      state.qzAnswered = false;
+      renderQuiz();
+    }
+
+    function buildOptions(correctTerm) {
+      // Prefer distractors from same cluster so confusable terms get drilled!
+      const sameCluster = TERMS.filter(t => t.cluster === correctTerm.cluster && t.id !== correctTerm.id);
+      const others = TERMS.filter(t => t.cluster !== correctTerm.cluster && t.id !== correctTerm.id);
+      const pool = [...shuffleArr(sameCluster), ...shuffleArr(others)];
+      const distractors = pool.slice(0, 3);
+      return shuffleArr([correctTerm, ...distractors]);
+    }
+
+    function renderQuiz() {
+      const stage = document.getElementById('qz-stage');
+      const summary = document.getElementById('qz-summary');
+      document.getElementById('qz-score-ok').textContent = `✓ ${state.qzOk}`;
+      document.getElementById('qz-score-bad').textContent = `✗ ${state.qzBad}`;
+
+      if (!state.qzQueue.length || state.qzIndex >= state.qzQueue.length) {
+        stage.classList.add('hidden');
+        summary.classList.remove('hidden');
+        document.getElementById('qz-progress').textContent = `${state.qzQueue.length} / ${state.qzQueue.length}`;
+        const total = state.qzOk + state.qzBad;
+        const pct = total > 0 ? Math.round((state.qzOk / total) * 100) : 0;
+        document.getElementById('qz-pct').textContent = total > 0 ? `${pct}%` : '—';
+        document.getElementById('qz-sum-sub').textContent = total > 0
+          ? `${total} ta savoldan ${state.qzOk} ta to‘g‘ri, ${state.qzBad} ta xato.`
+          : 'Tanlangan blokda atama yo‘q. Boshqa blok tanlang!';
+
+        const missedWrap = document.getElementById('qz-missed-wrap');
+        const missedList = document.getElementById('qz-missed-list');
+        const retryBtn = document.getElementById('qz-retry-missed');
+        if (state.qzMissed.length > 0) {
+          missedWrap.classList.remove('hidden');
+          retryBtn.classList.remove('hidden');
+          missedList.innerHTML = state.qzMissed.map(id => {
+            const t = TERM_MAP[id];
+            return `<div class="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-xs">
+              <div class="font-bold text-rose-700 dark:text-rose-300">#${t.id} ${t.term}</div>
+              <div class="text-slate-600 dark:text-slate-300 mt-0.5">${t.anchor}</div>
+            </div>`;
+          }).join('');
+        } else {
+          missedWrap.classList.add('hidden');
+          retryBtn.classList.add('hidden');
+        }
+        return;
+      }
+
+      stage.classList.remove('hidden');
+      summary.classList.add('hidden');
+      document.getElementById('qz-feedback-bar').classList.add('hidden');
+
+      const term = TERM_MAP[state.qzQueue[state.qzIndex]];
+      state.qzAnswered = false;
+      state.qzCurrentOptions = buildOptions(term);
+
+      document.getElementById('qz-progress').textContent = `${state.qzIndex + 1} / ${state.qzQueue.length}`;
+      document.getElementById('qz-streak').textContent = state.qzStreak >= 2 ? `🔥 ${state.qzStreak} ketma-ket` : '';
+
+      if (state.qzDir === 'def2term') {
+        document.getElementById('qz-q-label').textContent = 'Ta’rifga mos atamani toping';
+        document.getElementById('qz-prompt').textContent = term.def;
+      } else {
+        document.getElementById('qz-q-label').textContent = 'Atamaga mos ta’rifni toping';
+        document.getElementById('qz-prompt').innerHTML = `<span class="text-indigo-600 dark:text-indigo-400">#${term.id}</span> ${term.term}` +
+          (term.etym ? `<span class="block text-xs font-normal text-slate-400 mt-1">${term.etym}</span>` : '');
+      }
+
+      const optsEl = document.getElementById('qz-options');
+      optsEl.innerHTML = state.qzCurrentOptions.map((opt, idx) => {
+        const label = state.qzDir === 'def2term' ? opt.term : opt.anchor + ' — ' + opt.def;
+        return `<button data-opt-idx="${idx}" type="button"
+          class="qz-opt-btn w-full text-left p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-indigo-500 transition flex items-start gap-3">
+          <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+          <span class="text-sm sm:text-base font-medium leading-snug">${label}</span>
+        </button>`;
+      }).join('');
+    }
+
+    function answerQuiz(optIdx) {
+      if (state.qzAnswered || !state.qzCurrentOptions[optIdx]) return;
+      state.qzAnswered = true;
+      const correctTerm = TERM_MAP[state.qzQueue[state.qzIndex]];
+      const chosen = state.qzCurrentOptions[optIdx];
+      const isRight = chosen.id === correctTerm.id;
+
+      const btns = document.querySelectorAll('.qz-opt-btn');
+      btns.forEach((btn, idx) => {
+        const o = state.qzCurrentOptions[idx];
+        btn.disabled = true;
+        if (o.id === correctTerm.id) {
+          btn.className = 'qz-opt-btn w-full text-left p-3.5 sm:p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-100 flex items-start gap-3';
+        } else if (idx === optIdx && !isRight) {
+          btn.className = 'qz-opt-btn w-full text-left p-3.5 sm:p-4 rounded-xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/50 text-rose-900 dark:text-rose-100 flex items-start gap-3';
+        } else {
+          btn.classList.add('opacity-50');
+        }
+      });
+
+      const fbBar = document.getElementById('qz-feedback-bar');
+      const fbText = document.getElementById('qz-feedback-text');
+      fbBar.classList.remove('hidden');
+
+      if (isRight) {
+        state.qzOk += 1;
+        state.qzStreak += 1;
+        state.mastered.add(correctTerm.id);
+        state.hard.delete(correctTerm.id);
+        fbBar.className = 'flex items-center justify-between gap-3 p-3.5 rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200';
+        fbText.textContent = `✓ To‘g‘ri! ${correctTerm.term} — ${correctTerm.anchor}`;
+      } else {
+        state.qzBad += 1;
+        state.qzStreak = 0;
+        if (!state.qzMissed.includes(correctTerm.id)) state.qzMissed.push(correctTerm.id);
+        state.hard.add(correctTerm.id);
+        state.mastered.delete(correctTerm.id);
+        fbBar.className = 'flex items-center justify-between gap-3 p-3.5 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200';
+        fbText.textContent = `✗ To‘g‘ri javob: ${correctTerm.term} — ${correctTerm.anchor}`;
+      }
+
+      saveProgress();
+      updateHeader();
+      document.getElementById('qz-score-ok').textContent = `✓ ${state.qzOk}`;
+      document.getElementById('qz-score-bad').textContent = `✗ ${state.qzBad}`;
+
+      const autoNext = document.getElementById('qz-autonext').checked;
+      if (isRight && autoNext) {
+        state.qzAutoTimer = setTimeout(() => {
+          state.qzIndex += 1;
+          renderQuiz();
+        }, 700);
+      }
+    }
+
+    // ==================== CLUSTERS ====================
+    function renderClusters() {
+      const grid = document.getElementById('clusters-grid');
+      grid.innerHTML = CLUSTERS.map(c => {
+        const masteredCount = c.ids.filter(id => state.mastered.has(id)).length;
+        const rows = c.ids.map(id => {
+          const t = TERM_MAP[id];
+          const isM = state.mastered.has(id);
+          const isH = state.hard.has(id);
+          const dot = isM ? 'bg-emerald-500' : isH ? 'bg-rose-500' : 'bg-slate-300 dark:bg-slate-700';
+          return `<div class="flex items-start justify-between gap-2 py-1.5 border-b border-slate-100 dark:border-slate-800/80 last:border-0 text-xs">
+            <div class="flex items-start gap-2 min-w-0">
+              <span class="w-2 h-2 rounded-full ${dot} mt-1.5 shrink-0"></span>
+              <div>
+                <span class="font-bold text-slate-900 dark:text-slate-100">${t.term}</span>
+                <span class="text-slate-500 dark:text-slate-400"> — ${t.anchor}</span>
+              </div>
+            </div>
+            <span class="text-[11px] text-slate-400 shrink-0">#${t.id}</span>
+          </div>`;
+        }).join('');
+
+        return `<div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between gap-3">
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="font-extrabold text-sm sm:text-base">${c.title}</h3>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">${masteredCount}/${c.ids.length}</span>
+            </div>
+            <p class="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-0.5 mb-2.5">${c.hint}</p>
+            <div>${rows}</div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <button data-cluster-fc="${c.id}" type="button" class="py-1.5 px-2.5 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition">
+              ⚡ Kartochka
+            </button>
+            <button data-cluster-qz="${c.id}" type="button" class="py-1.5 px-2.5 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition">
+              🎯 Tez Test
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ==================== CHEAT SHEET LIST ====================
+    function renderList() {
+      document.querySelectorAll('.lfilter-btn').forEach(btn => {
+        const active = btn.dataset.lfilter === state.lsFilter;
+        btn.className = active
+          ? 'lfilter-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white transition'
+          : 'lfilter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition';
+      });
+
+      const q = state.lsQuery.trim().toLowerCase();
+      const filtered = TERMS.filter(t => {
+        if (state.lsFilter === 'mastered' && !state.mastered.has(t.id)) return false;
+        if (state.lsFilter === 'unmastered' && state.mastered.has(t.id)) return false;
+        if (state.lsFilter === 'hard' && !state.hard.has(t.id)) return false;
+        if (!q) return true;
+        return (
+          String(t.id).includes(q) ||
+          t.term.toLowerCase().includes(q) ||
+          t.etym.toLowerCase().includes(q) ||
+          t.anchor.toLowerCase().includes(q) ||
+          t.def.toLowerCase().includes(q)
+        );
+      });
+
+      document.getElementById('ls-count').textContent = `Ko‘rsatilmoqda: ${filtered.length} / 100 ta atama`;
+
+      const container = document.getElementById('ls-container');
+      if (!filtered.length) {
+        container.innerHTML = `<div class="text-center py-10 text-sm text-slate-400">Mos atama topilmadi.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => {
+        const isM = state.mastered.has(t.id);
+        const isH = state.hard.has(t.id);
+        const blurCls = state.lsBlur ? 'blur-def' : '';
+        return `<div class="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex flex-wrap items-baseline gap-2">
+              <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">#${t.id}</span>
+              <span class="font-extrabold text-sm sm:text-base">${t.term}</span>
+              ${t.etym ? `<span class="text-xs text-slate-400 italic">(${t.etym})</span>` : ''}
+            </div>
+            <div class="def-reveal-target ${blurCls} space-y-0.5">
+              <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400">⚡ ${t.anchor}</div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${t.def}</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1.5 shrink-0">
+            <button data-toggle-mastered="${t.id}" type="button" title="Yodlangan deb belgilash"
+              class="px-2.5 py-1 rounded-lg text-xs font-bold transition ${isM ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-emerald-100 dark:hover:bg-emerald-950'}">
+              ${isM ? '✓ Yodlandi' : '○'}
+            </button>
+            <button data-toggle-hard="${t.id}" type="button" title="Qiyin deb belgilash"
+              class="px-2.5 py-1 rounded-lg text-xs font-bold transition ${isH ? 'bg-rose-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-rose-100 dark:hover:bg-rose-950'}">
+              ${isH ? '! Qiyin' : '!'}
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ==================== EVENT WIRING ====================
+    function setupEvents() {
+      // Tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      // Theme
+      document.getElementById('btn-theme').addEventListener('click', () => {
+        state.dark = !state.dark;
+        applyTheme();
+        saveProgress();
+      });
+
+      // Reset modal
+      document.getElementById('btn-reset-open').addEventListener('click', () => {
+        document.getElementById('reset-modal').classList.remove('hidden');
+      });
+      document.getElementById('reset-cancel').addEventListener('click', () => {
+        document.getElementById('reset-modal').classList.add('hidden');
+      });
+      document.getElementById('reset-confirm').addEventListener('click', () => {
+        state.mastered.clear();
+        state.hard.clear();
+        saveProgress();
+        updateHeader();
+        document.getElementById('reset-modal').classList.add('hidden');
+        if (state.tab === 'flashcards') initFlashcards(false);
+        if (state.tab === 'quiz') initQuiz();
+        if (state.tab === 'clusters') renderClusters();
+        if (state.tab === 'list') renderList();
+      });
+
+      // Flashcards controls
+      document.getElementById('fc-scope').addEventListener('change', (e) => {
+        state.fcScope = e.target.value;
+        state.fcClusterId = null;
+        initFlashcards(false);
+      });
+      document.getElementById('fc-shuffle').addEventListener('click', () => initFlashcards(true));
+      document.getElementById('fc-reverse').addEventListener('click', (e) => {
+        state.fcReverse = !state.fcReverse;
+        e.currentTarget.textContent = state.fcReverse ? '🔄 Ta’rif → Atama' : '🔄 Atama → Ta’rif';
+        state.fcFlipped = false;
+        renderFlashcard();
+      });
+      document.getElementById('fc-card-inner').addEventListener('click', (e) => {
+        if (e.target.closest('#fc-hint-btn')) return;
+        flipFlashcard();
+      });
+      document.getElementById('fc-hint-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.fcHintVisible = !state.fcHintVisible;
+        renderFlashcard();
+      });
+      document.getElementById('fc-btn-flip').addEventListener('click', flipFlashcard);
+      document.getElementById('fc-btn-again').addEventListener('click', () => markFlashcard(false));
+      document.getElementById('fc-btn-know').addEventListener('click', () => markFlashcard(true));
+      document.getElementById('fc-done-restart').addEventListener('click', () => initFlashcards(false));
+      document.getElementById('fc-done-quiz').addEventListener('click', () => {
+        state.qzScope = state.fcScope;
+        state.qzClusterId = state.fcClusterId;
+        document.getElementById('qz-scope').value = state.qzClusterId ? 'all' : state.qzScope;
+        switchTab('quiz');
+        initQuiz();
+      });
+
+      // Quiz controls
+      document.getElementById('qz-scope').addEventListener('change', (e) => {
+        state.qzScope = e.target.value;
+        state.qzClusterId = null;
+        initQuiz();
+      });
+      document.getElementById('qz-dir').addEventListener('click', (e) => {
+        state.qzDir = state.qzDir === 'def2term' ? 'term2def' : 'def2term';
+        e.currentTarget.textContent = state.qzDir === 'def2term' ? 'Ta’rif → Atama' : 'Atama → Ta’rif';
+        initQuiz();
+      });
+      document.getElementById('qz-options').addEventListener('click', (e) => {
+        const btn = e.target.closest('.qz-opt-btn');
+        if (!btn) return;
+        answerQuiz(Number(btn.dataset.optIdx));
+      });
+      document.getElementById('qz-next-btn').addEventListener('click', () => {
+        if (state.qzAutoTimer) clearTimeout(state.qzAutoTimer);
+        state.qzIndex += 1;
+        renderQuiz();
+      });
+      document.getElementById('qz-restart').addEventListener('click', () => initQuiz());
+      document.getElementById('qz-retry-missed').addEventListener('click', () => {
+        const missed = state.qzMissed.slice();
+        initQuiz(missed);
+      });
+
+      // Clusters delegation
+      document.getElementById('clusters-grid').addEventListener('click', (e) => {
+        const fcBtn = e.target.closest('[data-cluster-fc]');
+        if (fcBtn) {
+          state.fcClusterId = fcBtn.dataset.clusterFc;
+          switchTab('flashcards');
+          initFlashcards(false);
+          return;
+        }
+        const qzBtn = e.target.closest('[data-cluster-qz]');
+        if (qzBtn) {
+          state.qzClusterId = qzBtn.dataset.clusterQz;
+          switchTab('quiz');
+          initQuiz();
+        }
+      });
+
+      // List controls
+      document.getElementById('ls-search').addEventListener('input', (e) => {
+        state.lsQuery = e.target.value;
+        renderList();
+      });
+      document.querySelectorAll('.lfilter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.lsFilter = btn.dataset.lfilter;
+          renderList();
+        });
+      });
+      document.getElementById('ls-toggle-blur').addEventListener('click', (e) => {
+        state.lsBlur = !state.lsBlur;
+        e.currentTarget.textContent = state.lsBlur ? '👁️ Ta’riflarni ko‘rsatish' : '👁️ Ta’riflarni yashirish';
+        renderList();
+      });
+      document.getElementById('ls-container').addEventListener('click', (e) => {
+        const mBtn = e.target.closest('[data-toggle-mastered]');
+        if (mBtn) {
+          const id = Number(mBtn.dataset.toggleMastered);
+          if (state.mastered.has(id)) state.mastered.delete(id);
+          else { state.mastered.add(id); state.hard.delete(id); }
+          saveProgress(); updateHeader(); renderList();
+          return;
+        }
+        const hBtn = e.target.closest('[data-toggle-hard]');
+        if (hBtn) {
+          const id = Number(hBtn.dataset.toggleHard);
+          if (state.hard.has(id)) state.hard.delete(id);
+          else { state.hard.add(id); state.mastered.delete(id); }
+          saveProgress(); updateHeader(); renderList();
+          return;
+        }
+        const blurEl = e.target.closest('.blur-def');
+        if (blurEl) blurEl.classList.toggle('revealed');
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+        if (state.tab === 'flashcards') {
+          if (e.code === 'Space') { e.preventDefault(); flipFlashcard(); }
+          else if (e.code === 'ArrowRight') { e.preventDefault(); markFlashcard(true); }
+          else if (e.code === 'ArrowLeft') { e.preventDefault(); markFlashcard(false); }
+          else if (e.code === 'KeyH') {
+            state.fcHintVisible = !state.fcHintVisible;
+            renderFlashcard();
+          }
+        } else if (state.tab === 'quiz') {
+          if (!state.qzAnswered && ['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) {
+            answerQuiz(Number(e.code.replace('Digit', '')) - 1);
+          } else if (state.qzAnswered && (e.code === 'Enter' || e.code === 'Space')) {
+            e.preventDefault();
+            if (state.qzAutoTimer) clearTimeout(state.qzAutoTimer);
+            state.qzIndex += 1;
+            renderQuiz();
+          }
+        }
+      });
+    }
+
+    // Boot
+    loadProgress();
+    applyTheme();
+    updateHeader();
+    setupEvents();
+    switchTab('flashcards');
+    initFlashcards(false);
+    initQuiz();
+  </script>
+</body>
+</html>
